@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algebraic Fraction Master: Lesson & Quiz</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --accent: #d97706;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .container {
+            max-width: 780px;
+            width: 100%;
+            background: var(--card);
+            padding: 35px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            position: relative;
+        }
+
+        /* Fraction Layout Formatting */
+        .fraction {
+            display: inline-flex;
+            flex-direction: column;
+            vertical-align: middle;
+            text-align: center;
+            font-family: "Times New Roman", Times, serif;
+            font-size: 1.35rem;
+            margin: 0 4px;
+        }
+
+        .num {
+            border-bottom: 2px solid #334155;
+            padding-bottom: 3px;
+        }
+
+        .den {
+            padding-top: 3px;
+        }
+
+        .op {
+            font-size: 1.4rem;
+            margin: 0 8px;
+            vertical-align: middle;
+        }
+
+        .fraction sup {
+            font-size: 0.65em;
+            vertical-align: super;
+        }
+
+        /* Section Switcher Display */
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        /* Slideshow Styling */
+        .slide-card {
+            background: #f1f5f9;
+            border-left: 5px solid var(--primary);
+            padding: 25px;
+            border-radius: 10px;
+            text-align: left;
+            margin: 20px 0;
+            min-height: 220px;
+        }
+
+        .slide-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .slide-math {
+            font-size: 1.35rem;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 15px 0;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.05);
+            overflow-x: auto;
+        }
+
+        .slide-text {
+            font-size: 1.05rem;
+            line-height: 1.6;
+            color: #334155;
+        }
+
+        /* Quiz Styling */
+        .stats-bar {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin-bottom: 25px;
+            font-weight: bold;
+            font-size: 1.05rem;
+        }
+
+        .lives-box {
+            color: var(--danger);
+            font-size: 1.2rem;
+        }
+
+        .timer-box {
+            background: #f1f5f9;
+            color: #475569;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: all 0.3s;
+            min-width: 60px;
+        }
+
+        .timer-urgent {
+            background: #fee2e2;
+            color: #991b1b;
+            animation: pulse 1s infinite;
+            font-weight: 900;
+        }
+
+        .expression-display {
+            font-size: 1.5rem;
+            font-family: serif;
+            background: #f1f5f9;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 90px;
+            flex-wrap: wrap;
+            overflow-x: auto;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .option-btn {
+            padding: 15px;
+            font-size: 1.1rem;
+            border-radius: 10px;
+            border: 2px solid #cbd5e1;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 85px;
+        }
+
+        .option-btn:not(:disabled):hover {
+            border-color: var(--primary);
+            background: #f8fafc;
+        }
+
+        .option-btn.correct {
+            background: #dcfce7;
+            border-color: var(--success);
+            color: #15803d;
+            font-weight: bold;
+        }
+
+        .option-btn.wrong {
+            background: #fee2e2;
+            border-color: var(--danger);
+            color: #991b1b;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .hint-box {
+            background: #fffbe3;
+            color: #92400e;
+            border: 1px solid #fef3c7;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+            display: none;
+            text-align: left;
+            line-height: 1.5;
+        }
+
+        .hint-btn {
+            background: var(--accent);
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            margin-bottom: 15px;
+            transition: background 0.2s;
+            font-weight: bold;
+        }
+
+        .hint-btn:hover {
+            background: #b45309;
+        }
+
+        .factored-display {
+            background: #eff6ff;
+            color: #1e40af;
+            border: 1px dashed #bfdbfe;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-family: serif;
+            font-size: 1.15rem;
+        }
+
+        /* Nav Buttons */
+        .btn-group {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .nav-btn {
+            background: var(--primary);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .nav-btn:hover {
+            background: var(--primary-hover);
+        }
+
+        .nav-btn.secondary {
+            background: #64748b;
+        }
+
+        .nav-btn.secondary:hover {
+            background: #475569;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- PHASE 1: SLIDESHOW SECTION -->
+        <div id="slideshow-section" class="section active">
+            <h1>Algebraic Fraction Tutorial</h1>
+            <p style="color: #64748b;">Slide <span id="slide-num">1</span> of 12</p>
+            
+            <div class="slide-card">
+                <div class="slide-title" id="slide-title">Loading...</div>
+                <div class="slide-math" id="slide-math"></div>
+                <div class="slide-text" id="slide-text"></div>
+            </div>
+
+            <div class="btn-group">
+                <button id="prev-slide-btn" class="nav-btn secondary" onclick="changeSlide(-1)">Previous</button>
+                <button id="skip-quiz-btn" class="nav-btn secondary" onclick="startQuizPhase()">Skip to Quiz 🚀</button>
+                <button id="next-slide-btn" class="nav-btn" onclick="changeSlide(1)">Next</button>
+            </div>
+        </div>
+
+        <!-- PHASE 2: QUIZ SECTION -->
+        <div id="quiz-section" class="section">
+            <h1>Fraction Challenge <span id="level-indicator" style="font-size: 1.1rem; color: var(--primary);"></span></h1>
+            <div class="stats-bar">
+                <div>Score: <span id="score">0</span></div>
+                <div class="lives-box" id="lives-display">❤️❤️❤️❤️❤️</div>
+                <div class="timer-box" id="timer-display">45s</div>
+            </div>
+            <div class="expression-display" id="expression">Click "Start Quiz" to Begin!</div>
+            
+            <button id="hint-btn" class="hint-btn" onclick="showHint()" style="display: none;">💡 Need a Hint?</button>
+            <div id="hint-box" class="hint-box"></div>
+            
+            <div class="options-grid" id="options-container"></div>
+            <div id="feedback-area"></div>
+            
+            <div class="btn-group" style="justify-content: center;">
+                <button id="start-btn" class="nav-btn" onclick="startGame()">Start Quiz</button>
+                <button id="next-btn" class="nav-btn" onclick="nextQuestion()" style="display: none; background: #2563eb;">Next Question</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* GCD Helper to simplify numerical coefficients */
+        function gcd(a, b) {
+            a = Math.abs(a);
+            b = Math.abs(b);
+            while (b) {
+                let t = b;
+                b = a % b;
+                a = t;
+            }
+            return a;
+        }
+
+        /* Helper to build visual fractions */
+        function createFractionHTML(numStr, denStr) {
+            if (denStr === "" || denStr === "1") {
+                return `<span style="font-size:1.4rem; font-family:serif; padding:0 5px;">${numStr}</span>`;
+            }
+            return `<div class="fraction"><div class="num">${numStr}</div><div class="den">${denStr}</div></div>`;
+        }
+
+        /* ----------------------------------------------------
+           SLIDESHOW DATA & LOGIC
+        ---------------------------------------------------- */
+        const slidesData = [
+            {
+                title: "1. Like Denominators",
+                math: `${createFractionHTML("a", "c")} <span class="op">+</span> ${createFractionHTML("b", "c")} <span class="op">=</span> ${createFractionHTML("a + b", "c")}`,
+                text: "When fractions share the same denominator, keep the denominator identical and add or subtract the numerators directly."
+            },
+            {
+                title: "2. Coprime Denominators",
+                math: `${createFractionHTML("1", "a")} <span class="op">+</span> ${createFractionHTML("1", "b")} <span class="op">=</span> ${createFractionHTML("b + a", "ab")}`,
+                text: "When denominators share no common factors, multiply them together to form the common denominator (ab), and cross-multiply the numerators."
+            },
+            {
+                title: "3. General Cross-Multiplication Rule",
+                math: `${createFractionHTML("x", "a")} <span class="op">±</span> ${createFractionHTML("y", "b")} <span class="op">=</span> ${createFractionHTML("bx ± ay", "ab")}`,
+                text: "The universal rule for adding/subtracting any two fractions: Multiply diagonally for the numerator, and multiply straight across for the denominator."
+            },
+            {
+                title: "4. Polynomial Numerators & Parentheses",
+                math: `${createFractionHTML("x + 1", "2")} <span class="op">+</span> ${createFractionHTML("x - 2", "3")} <span class="op">=</span> ${createFractionHTML("3(x + 1) + 2(x - 2)", "6")}`,
+                text: "Always wrap multi-term numerators in parentheses when expanding over a common denominator to prevent distribution sign errors."
+            },
+            {
+                title: "5. Whole Terms and Fractions",
+                math: `<span style="font-size:1.4rem; font-family:serif;">x</span> <span class="op">+</span> ${createFractionHTML("a", "b")} <span class="op">=</span> ${createFractionHTML("bx + a", "b")}`,
+                text: "Treat any whole variable term x as x/1. Convert it to a common denominator by multiplying numerator and denominator by b."
+            },
+            {
+                title: "6. Variable Factor Denominators",
+                math: `${createFractionHTML("a", "x")} <span class="op">+</span> ${createFractionHTML("b", "cx")} <span class="op">=</span> ${createFractionHTML("ca + b", "cx")}`,
+                text: "Find the Least Common Denominator (LCD). Here, cx contains x, so you only need to multiply the first fraction's numerator and denominator by c."
+            },
+            {
+                title: "7. Binomial Denominators",
+                math: `${createFractionHTML("1", "x + a")} <span class="op">+</span> ${createFractionHTML("1", "x + b")} <span class="op">=</span> ${createFractionHTML("2x + a + b", "(x + a)(x + b)")}`,
+                text: "Treat binomial terms like (x + a) as single units. The common denominator is their product: (x + a)(x + b)."
+            },
+            {
+                title: "8. Perfect Squares vs. Linear Factors",
+                math: `${createFractionHTML("1", "x + a")} <span class="op">+</span> ${createFractionHTML("b", "(x + a)<sup>2</sup>")} <span class="op">=</span> ${createFractionHTML("(x + a) + b", "(x + a)<sup>2</sup>")}`,
+                text: "When one denominator is a linear factor (x + a) and the other is its square (x + a)², the LCD is (x + a)². Multiply the first term by (x + a)."
+            },
+            {
+                title: "9. Difference of Two Squares (Simple)",
+                math: `${createFractionHTML("1", "x + a")} <span class="op">+</span> ${createFractionHTML("b", "x<sup>2</sup> - a<sup>2</sup>")} <span class="op">=</span> ${createFractionHTML("x - a + b", "x<sup>2</sup> - a<sup>2</sup>")}`,
+                text: "Factor x² - a² into (x - a)(x + a). The LCD is x² - a², so you only need to multiply the first term's numerator by (x - a)."
+            },
+            {
+                title: "10. Coefficients with Difference of Squares (ax ± b)",
+                math: `${createFractionHTML("1", "ax + b")} <span class="op">+</span> ${createFractionHTML("c", "a<sup>2</sup>x<sup>2</sup> - b<sup>2</sup>")} <span class="op">=</span> ${createFractionHTML("ax - b + c", "a<sup>2</sup>x<sup>2</sup> - b<sup>2</sup>")}`,
+                text: "When dealing with terms like a²x² - b² = (ax - b)(ax + b), the LCD is a²x² - b². Multiply the numerator of 1/(ax + b) by (ax - b)."
+            },
+            {
+                title: "11. Perfect Squares with Coefficients (ax + b)²",
+                math: `${createFractionHTML("1", "ax + b")} <span class="op">+</span> ${createFractionHTML("c", "(ax + b)<sup>2</sup>")} <span class="op">=</span> ${createFractionHTML("ax + b + c", "(ax + b)<sup>2</sup>")}`,
+                text: "For denominators (ax + b) and (ax + b)², the LCD is (ax + b)². Expand the numerator by multiplying 1 by (ax + b)."
+            },
+            {
+                title: "12. Factored Linear Forms max + mb",
+                math: `${createFractionHTML("1", "m(ax + b)")} <span class="op">+</span> ${createFractionHTML("c", "a<sup>2</sup>x<sup>2</sup> - b<sup>2</sup>")} <span class="op">=</span> ${createFractionHTML("(ax - b) + mc", "m(a<sup>2</sup>x<sup>2</sup> - b<sup>2</sup>)")}`,
+                text: "Notice that max + mb = m(ax + b). Factor out m first. The LCD will include m and the quadratic factor: m(a²x² - b²)."
+            }
+        ];
+
+        let currentSlide = 0;
+
+        function renderSlide() {
+            const data = slidesData[currentSlide];
+            document.getElementById("slide-num").textContent = currentSlide + 1;
+            document.getElementById("slide-title").textContent = data.title;
+            document.getElementById("slide-math").innerHTML = data.math;
+            document.getElementById("slide-text").textContent = data.text;
+
+            document.getElementById("prev-slide-btn").style.visibility = currentSlide === 0 ? "hidden" : "visible";
+            
+            const nextBtn = document.getElementById("next-slide-btn");
+            if (currentSlide === slidesData.length - 1) {
+                nextBtn.textContent = "Start Quiz 🎯";
+                nextBtn.onclick = startQuizPhase;
+            } else {
+                nextBtn.textContent = "Next";
+                nextBtn.onclick = () => changeSlide(1);
+            }
+        }
+
+        function changeSlide(direction) {
+            currentSlide += direction;
+            if (currentSlide < 0) currentSlide = 0;
+            if (currentSlide >= slidesData.length) currentSlide = slidesData.length - 1;
+            renderSlide();
+        }
+
+        function startQuizPhase() {
+            document.getElementById("slideshow-section").classList.remove("active");
+            document.getElementById("quiz-section").classList.add("active");
+        }
+
+        // Initial render
+        renderSlide();
+
+
+        /* ----------------------------------------------------
+           QUIZ DATA & LOGIC
+        ---------------------------------------------------- */
+        let score = 0, timeLeft = 45, lives = 5, timerInterval = null, currentQ = null, gameActive = false;
+
+        function generateQuestion() {
+            let levelLabel = "";
+            let isLevel1 = (score < 30);
+            let isLevel2 = (score >= 30 && score < 70);
+            let slideIndex;
+
+            if (isLevel1) {
+                let slides = [1, 2, 5, 6];
+                slideIndex = slides[Math.floor(Math.random() * slides.length)];
+                levelLabel = "(Level 1: Basic Operations & Variables)";
+            } else if (isLevel2) {
+                let slides = [3, 4, 7, 8, 9];
+                slideIndex = slides[Math.floor(Math.random() * slides.length)];
+                levelLabel = "(Level 2: Binomials & Simple Squares)";
+            } else {
+                let slides = [8, 10, 11, 12];
+                slideIndex = slides[Math.floor(Math.random() * slides.length)];
+                levelLabel = "(Level 3: ax+b Perfect Squares & Factored Terms)";
+            }
+
+            document.getElementById("level-indicator").textContent = levelLabel;
+
+            let exprHTML = "";
+            let correctHTML = "";
+            let choices = [];
+            let hintText = "";
+
+            switch (slideIndex) {
+                case 1: { // Slide 1
+                    let k = Math.floor(Math.random() * 5) + 2;
+                    let isAdd = Math.random() > 0.5;
+                    let opSymbol = isAdd ? "+" : "-";
+
+                    exprHTML = `${createFractionHTML("a", "c")} <span class="op">${opSymbol}</span> ${createFractionHTML(k, "c")}`;
+                    correctHTML = createFractionHTML(isAdd ? `a + ${k}` : `a - ${k}`, "c");
+                    hintText = `<b>[Slide 1 Concept]</b> When denominators are identical (c), combine the numerators directly.`;
+
+                    choices = [
+                        correctHTML,                                                  
+                        createFractionHTML(isAdd ? `a + ${k}` : `a - ${k}`, "2c"),     
+                        createFractionHTML(isAdd ? `a + ${k+1}` : `a - ${k+1}`, "c"), 
+                        createFractionHTML(isAdd ? `${k}a` : `- ${k}a`, "c")           
+                    ];
+                    break;
+                }
+                case 2: { // Slide 2
+                    let isAdd = Math.random() > 0.5;
+                    let opSymbol = isAdd ? "+" : "-";
+
+                    exprHTML = `${createFractionHTML("1", "a")} <span class="op">${opSymbol}</span> ${createFractionHTML("1", "b")}`;
+                    
+                    if (isAdd) {
+                        correctHTML = createFractionHTML("b + a", "ab");
+                        hintText = `<b>[Slide 2 Concept]</b> Coprime denominators: LCD is ab. Cross-multiply to get (b + a)/ab.`;
+                        choices = [
+                            correctHTML,                             
+                            createFractionHTML("1", "a + b"),        
+                            createFractionHTML("2", "ab"),           
+                            createFractionHTML("b - a", "ab")        
+                        ];
+                    } else {
+                        correctHTML = createFractionHTML("b - a", "ab");
+                        hintText = `<b>[Slide 2 Concept]</b> Coprime denominators: LCD is ab. Cross-multiply to get (b - a)/ab.`;
+                        choices = [
+                            correctHTML,                             
+                            createFractionHTML("a - b", "ab"),       
+                            createFractionHTML("1", "a - b"),        
+                            createFractionHTML("b + a", "ab")        
+                        ];
+                    }
+                    break;
+                }
+                case 3: { // Slide 3
+                    let isAdd = Math.random() > 0.5;
+                    let opSymbol = isAdd ? "+" : "-";
+
+                    exprHTML = `${createFractionHTML("x", "a")} <span class="op">${opSymbol}</span> ${createFractionHTML("y", "b")}`;
+                    
+                    if (isAdd) {
+                        correctHTML = createFractionHTML("bx + ay", "ab");
+                        choices = [
+                            correctHTML,                                 
+                            createFractionHTML("ax + by", "ab"),         
+                            createFractionHTML("x + y", "ab"),           
+                            createFractionHTML("bx + ay", "a + b")       
+                        ];
+                    } else {
+                        correctHTML = createFractionHTML("bx - ay", "ab");
+                        choices = [
+                            correctHTML,                                 
+                            createFractionHTML("ay - bx", "ab"),         
+                            createFractionHTML("x - y", "ab"),           
+                            createFractionHTML("bx - ay", "a + b")       
+                        ];
+                    }
+                    hintText = `<b>[Slide 3 Concept]</b> Cross-multiplication rule: (bx ± ay) / ab.`;
+                    break;
+                }
+                case 4: { // Slide 4
+                    let c1 = Math.floor(Math.random() * 3) + 1;
+                    let c2 = Math.floor(Math.random() * 3) + 1;
+                    
+                    exprHTML = `${createFractionHTML(`x + ${c1}`, "2")} <span class="op">+</span> ${createFractionHTML(`x - ${c2}`, "3")}`;
+                    let constTerm = 3 * c1 - 2 * c2;
+                    let constStr = constTerm >= 0 ? `+ ${constTerm}` : `- ${Math.abs(constTerm)}`;
+                    
+                    correctHTML = createFractionHTML(`5x ${constStr}`, "6");
+                    hintText = `<b>[Slide 4 Concept]</b> Expand with parentheses: [3(x + ${c1}) + 2(x - ${c2})] / 6.`;
+
+                    let wrongConst1 = 3 * c1 + 2 * c2; 
+                    let wrongConst2 = c1 - c2;         
+
+                    choices = [
+                        correctHTML,                                                
+                        createFractionHTML(`2x ${constStr}`, "5"),                  
+                        createFractionHTML(`5x + ${wrongConst1}`, "6"),             
+                        createFractionHTML(`5x ${wrongConst2 >= 0 ? '+ ' + wrongConst2 : '- ' + Math.abs(wrongConst2)}`, "6") 
+                    ];
+                    break;
+                }
+                case 5: { // Slide 5
+                    let isAdd = Math.random() > 0.5;
+                    let opSymbol = isAdd ? "+" : "-";
+
+                    exprHTML = `<span style="font-size:1.5rem; font-family:serif; margin-right:5px;">x</span> <span class="op">${opSymbol}</span> ${createFractionHTML("a", "b")}`;
+                    
+                    if (isAdd) {
+                        correctHTML = createFractionHTML("bx + a", "b");
+                        choices = [
+                            correctHTML,                              
+                            createFractionHTML("x + a", "b"),         
+                            createFractionHTML("bx + a", "b + 1"),    
+                            createFractionHTML("x + ab", "b")         
+                        ];
+                    } else {
+                        correctHTML = createFractionHTML("bx - a", "b");
+                        choices = [
+                            correctHTML,                              
+                            createFractionHTML("a - bx", "b"),        
+                            createFractionHTML("x - a", "b"),         
+                            createFractionHTML("bx - a", "b - 1")     
+                        ];
+                    }
+                    hintText = `<b>[Slide 5 Concept]</b> Treat x as x/1. Common denominator is b.`;
+                    break;
+                }
+                case 6: { // Slide 6
+                    let c = Math.floor(Math.random() * 3) + 2;
+                    
+                    exprHTML = `${createFractionHTML("a", "x")} <span class="op">+</span> ${createFractionHTML("b", `${c}x`)}`;
+                    correctHTML = createFractionHTML(`${c}a + b`, `${c}x`);
+                    hintText = `<b>[Slide 6 Concept]</b> LCD is ${c}x. Multiply top and bottom of first fraction by ${c}.`;
+
+                    choices = [
+                        correctHTML,                                        
+                        createFractionHTML("a + b", `${c}x`),               
+                        createFractionHTML(`a + ${c}b`, `${c}x`),           
+                        createFractionHTML(`${c}a + b`, `${c}x<sup>2</sup>`) 
+                    ];
+                    break;
+                }
+                case 7: { // Slide 7
+                    exprHTML = `${createFractionHTML("1", "x + a")} <span class="op">+</span> ${createFractionHTML("1", "x + b")}`;
+                    correctHTML = createFractionHTML("2x + a + b", "(x + a)(x + b)");
+                    hintText = `<b>[Slide 7 Concept]</b> Common denominator is (x + a)(x + b). Combine numerators: (x + b) + (x + a).`;
+
+                    choices = [
+                        correctHTML,                                           
+                        createFractionHTML("2", "2x + a + b"),                  
+                        createFractionHTML("x + a + b", "(x + a)(x + b)"),     
+                        createFractionHTML("2x + a + b", "x<sup>2</sup> + ab") 
+                    ];
+                    break;
+                }
+                case 8: { // Slide 8 - Perfect Square vs Linear Factor
+                    let k = Math.floor(Math.random() * 4) + 1;
+                    exprHTML = `${createFractionHTML("1", "x + a")} <span class="op">+</span> ${createFractionHTML(k, "(x + a)<sup>2</sup>")}`;
+                    
+                    correctHTML = createFractionHTML(`x + a + ${k}`, "(x + a)<sup>2</sup>");
+                    hintText = `<b>[Slide 8 Concept]</b> LCD is (x + a)². Multiply the first fraction's numerator by (x + a) to get 1(x + a) + ${k}.`;
+
+                    choices = [
+                        correctHTML,
+                        createFractionHTML(`${1 + k}`, "(x + a)<sup>2</sup>"),
+                        createFractionHTML(`x + a + ${k}`, "(x + a)<sup>3</sup>"),
+                        createFractionHTML(`x + ${k}`, "(x + a)<sup>2</sup>")
+                    ];
+                    break;
+                }
+                case 9: { // Slide 9 - Simple Difference of Squares
+                    let a = Math.floor(Math.random() * 3) + 2;
+                    let a2 = a * a;
+                    let b = Math.floor(Math.random() * 4) + 1;
+
+                    exprHTML = `${createFractionHTML("1", `x + ${a}`)} <span class="op">+</span> ${createFractionHTML(b, `x<sup>2</sup> - ${a2}`)}`;
+                    let numConst = b - a;
+                    
+                    if (numConst === 0) {
+                        correctHTML = createFractionHTML("x", `x<sup>2</sup> - ${a2}`);
+                    } else {
+                        let numStr = numConst > 0 ? `x + ${numConst}` : `x - ${Math.abs(numConst)}`;
+                        correctHTML = createFractionHTML(numStr, `x<sup>2</sup> - ${a2}`);
+                    }
+                    hintText = `<b>[Slide 9 Concept]</b> Factor x² - ${a2} = (x - ${a})(x + ${a}). LCD is x² - ${a2}. Numerator: 1(x - ${a}) + ${b}. Simplified to lowest terms.`;
+
+                    let wrongConst = b + a;
+                    choices = [
+                        correctHTML,                                                          
+                        createFractionHTML(`${1 + b}`, `x<sup>2</sup> + x - ${a2}`),          
+                        createFractionHTML(`x + ${wrongConst}`, `x<sup>2</sup> - ${a2}`),   
+                        createFractionHTML("x", `(x + ${a})<sup>2</sup>`)                 
+                    ];
+                    break;
+                }
+                case 10: { // Slide 10 - Difference of Squares with ax + b
+                    let aCoeff = Math.floor(Math.random() * 2) + 2; // 2 or 3
+                    let bConst = Math.floor(Math.random() * 3) + 1; // 1 to 3
+                    let a2 = aCoeff * aCoeff;
+                    let b2 = bConst * bConst;
+                    let cVal = Math.floor(Math.random() * 4) + 1;
+
+                    exprHTML = `${createFractionHTML("1", `${aCoeff}x +${bConst}`)} <span class="op">+</span> ${createFractionHTML(cVal, `${a2}x<sup>2</sup> -${b2}`)}`;
+                    let netConst = cVal - bConst;
+                    
+                    if (netConst === 0) {
+                        correctHTML = createFractionHTML(`${aCoeff}x`, `${a2}x<sup>2</sup> - ${b2}`);
+                    } else {
+                        let netStr = netConst > 0 ? `+ ${netConst}` : `- ${Math.abs(netConst)}`;
+                        correctHTML = createFractionHTML(`${aCoeff}x ${netStr}`, `${a2}x<sup>2</sup> - ${b2}`);
+                    }
+                    
+                    hintText = `<b>[Slide 10 Concept]</b> ${a2}x² - ${b2} = (${aCoeff}x - ${bConst})(${aCoeff}x + ${bConst}). LCD is ${a2}x² - ${b2}. Numerator becomes (${aCoeff}x - ${bConst}) + ${cVal}.`;
+
+                    let wrongNet = cVal + bConst;
+                    choices = [
+                        correctHTML,
+                        createFractionHTML(`${aCoeff}x + ${wrongNet}`, `${a2}x<sup>2</sup> - ${b2}`),
+                        createFractionHTML(`${1 + cVal}`, `${a2}x<sup>2</sup> - ${b2}`),
+                        createFractionHTML(`${aCoeff}x`, `(${aCoeff}x + ${bConst})<sup>2</sup>`)
+                    ];
+                    break;
+                }
+                case 11: { // Slide 11 - Perfect Square with (ax + b)^2
+                    let aCoeff = Math.floor(Math.random() * 2) + 2; // 2 or 3
+                    let bConst = Math.floor(Math.random() * 3) + 1;
+                    let cVal = Math.floor(Math.random() * 3) + 1;
+                    let a2 = aCoeff * aCoeff;
+
+                    exprHTML = `${createFractionHTML("1", `${aCoeff}x +${bConst}`)} <span class="op">+</span> ${createFractionHTML(cVal, `(${aCoeff}x +${bConst})<sup>2</sup>`)}`;
+                    let totalConst = bConst + cVal;
+                    
+                    correctHTML = createFractionHTML(`${aCoeff}x + ${totalConst}`, `(${aCoeff}x + ${bConst})<sup>2</sup>`);
+                    
+                    hintText = `<b>[Slide 11 Concept]</b> LCD is (${aCoeff}x + ${bConst})². Multiply numerator of first fraction by (${aCoeff}x + ${bConst}) to get (${aCoeff}x + ${bConst}) + ${cVal}.`;
+
+                    choices = [
+                        correctHTML,
+                        createFractionHTML(`${1 + cVal}`, `(${aCoeff}x + ${bConst})<sup>2</sup>`),
+                        createFractionHTML(`${aCoeff}x + ${cVal}`, `(${aCoeff}x + ${bConst})<sup>2</sup>`),
+                        createFractionHTML(`${aCoeff}x + ${totalConst}`, `${a2}x<sup>2</sup> + ${bConst * bConst}`)
+                    ];
+                    break;
+                }
+                case 12: { // Slide 12 - Factored Form max + mb vs Difference of Squares
+                    let m = Math.floor(Math.random() * 2) + 2; // 2 or 3
+                    let aCoeff = 2;
+                    let bConst = 1;
+                    let ma = m * aCoeff;
+                    let mb = m * bConst;
+                    let a2 = aCoeff * aCoeff; // 4
+                    let b2 = bConst * bConst; // 1
+
+                    exprHTML = `${createFractionHTML("1", `${ma}x +${mb}`)} <span class="op">+</span> ${createFractionHTML("1", `${a2}x<sup>2</sup> -${b2}`)}`;
+                    
+                    let numCoeff = aCoeff; // 2
+                    let numConst = m - bConst; // m - 1
+                    let denCoeff = m;
+
+                    let g = gcd(gcd(numCoeff, numConst), denCoeff);
+                    let simNumCoeff = numCoeff / g;
+                    let simNumConst = numConst / g;
+                    let simDenCoeff = denCoeff / g;
+
+                    let simNumStr = simNumCoeff === 1 ? "x" : `${simNumCoeff}x`;
+                    if (simNumConst > 0) simNumStr += ` + ${simNumConst}`;
+                    else if (simNumConst < 0) simNumStr += ` - ${Math.abs(simNumConst)}`;
+
+                    let simDenStr = simDenCoeff === 1 ? `${a2}x<sup>2</sup> - ${b2}` : `${simDenCoeff}(${a2}x<sup>2</sup> - ${b2})`;
+
+                    correctHTML = createFractionHTML(simNumStr, simDenStr);
+                    hintText = `<b>[Slide 12 Concept]</b> Factor out ${m} to get ${m}(${aCoeff}x + ${bConst}). The LCD is ${m}(${a2}x² - ${b2}). Top becomes (${aCoeff}x - ${bConst}) + ${m}, simplified to lowest terms.`;
+
+                    choices = [
+                        correctHTML,
+                        createFractionHTML(`${aCoeff}x + ${1 + m}`, `${m}(${a2}x<sup>2</sup> - ${b2})`),
+                        createFractionHTML("2", `${ma}x<sup>2</sup> + ${mb} - ${b2}`),
+                        createFractionHTML(`${aCoeff}x + ${m}`, `${a2}x<sup>2</sup> - ${b2}`)
+                    ];
+                    break;
+                }
+            }
+
+            return {
+                expr: exprHTML,
+                hcf: correctHTML, 
+                options: choices,
+                hint: hintText
+            };
+        }
+
+        function showHint() {
+            const hintBox = document.getElementById("hint-box");
+            if (currentQ && currentQ.hint) {
+                hintBox.innerHTML = currentQ.hint;
+                hintBox.style.display = "block";
+            }
+        }
+
+        function startGame() {
+            score = 0; 
+            lives = 5;
+            document.getElementById("score").textContent = score;
+            updateLivesDisplay();
+            document.getElementById("start-btn").style.display = "none";
+            gameActive = true; 
+            nextQuestion();
+        }
+
+        function updateLivesDisplay() {
+            document.getElementById("lives-display").textContent = "❤️".repeat(lives) + "🖤".repeat(5 - lives);
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            const display = document.getElementById("timer-display");
+            display.classList.remove("timer-urgent");
+            display.textContent = timeLeft + "s";
+            
+            timerInterval = setInterval(() => {
+                timeLeft--; 
+                display.textContent = timeLeft + "s";
+                
+                if(timeLeft <= 25) {
+                    document.getElementById("hint-btn").style.display = "inline-block";
+                }
+                
+                if(timeLeft <= 10) display.classList.add("timer-urgent");
+                if(timeLeft <= 0) { clearInterval(timerInterval); endGame(); }
+            }, 1000);
+        }
+
+        function nextQuestion() {
+            if (!gameActive) return;
+            timeLeft = 45; 
+            document.getElementById("feedback-area").innerHTML = "";
+            document.getElementById("next-btn").style.display = "none";
+            
+            const hintBox = document.getElementById("hint-box");
+            hintBox.style.display = "none";
+            hintBox.textContent = "";
+            document.getElementById("hint-btn").style.display = "none";
+            
+            currentQ = generateQuestion();
+            document.getElementById("expression").innerHTML = currentQ.expr;
+            
+            const container = document.getElementById("options-container");
+            container.innerHTML = "";
+            
+            // Shuffle non-equivalent options
+            [...currentQ.options].sort(() => Math.random() - 0.5).forEach(opt => {
+                const btn = document.createElement("button");
+                btn.className = "option-btn"; 
+                btn.innerHTML = opt;
+                btn.onclick = () => {
+                    if(opt === currentQ.hcf) { 
+                        clearInterval(timerInterval); 
+                        document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+                        btn.classList.add("correct"); 
+                        score += 10;
+                        document.getElementById("score").textContent = score;
+
+                        document.getElementById("feedback-area").innerHTML = '<div class="factored-display"><strong>🎉 Correct!</strong> You successfully simplified the algebraic fractions!</div>';
+                        document.getElementById("next-btn").style.display = "inline-block";
+                        document.getElementById("hint-btn").style.display = "none";
+                    } else { 
+                        btn.classList.add("wrong"); 
+                        btn.disabled = true; 
+                        lives--;
+                        updateLivesDisplay();
+                        
+                        if (lives <= 0) {
+                            setTimeout(endGame, 800);
+                        }
+                    }
+                };
+                container.appendChild(btn);
+            });
+            startTimer();
+        }
+
+        function endGame() {
+            gameActive = false; 
+            clearInterval(timerInterval);
+
+            document.getElementById("expression").textContent = "🎮 Game Over!";
+            document.getElementById("options-container").innerHTML = "";
+            document.getElementById("next-btn").style.display = "none";
+            document.getElementById("hint-btn").style.display = "none";
+            document.getElementById("hint-box").style.display = "none";
+            document.getElementById("level-indicator").textContent = "";
+            
+            document.getElementById("feedback-area").innerHTML = `<div class="factored-display">Your final score: <strong>${score}</strong> points!</div>`;
+            
+            const startBtn = document.getElementById("start-btn");
+            startBtn.style.display = "inline-block";
+            startBtn.textContent = "Play Again";
+        }
+    </script>
+</body>
+</html>
